@@ -1,0 +1,22 @@
+<?xml version="2.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.flixtor" name="Flixtor" version="0.0.3-alpha" provider-name="Markop159">
+	<requires>
+		<import addon="script.module.requests" />
+		<import addon="script.module.beautifulsoup4" />
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="addon.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en"></summary>
+		<description lang="en"></description>
+		<disclaimer lang="en"></disclaimer>
+		<language></language>
+		<platform>all</platform>
+		<license>WTFPL, Version 2, December 2004</license>
+		<forum></forum>
+		<website></website>
+		<email></email>
+		<source></source>
+	</extension>
+</addon>
