@@ -20,12 +20,6 @@ __handle__ = int(sys.argv[1])
 from flixtor.helper import getMovies, getTVShows, getSeasons, getEpisodes, getUserInput
 from flixtor.logging import log, LOGLEVEL, log_error
 
-
-# TODO: Treba nardit vse od začetka :D
-
-# Domain
-
-
 def createMenu(command, func):
     # Creates menu depending on command
     xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
@@ -39,6 +33,15 @@ def createMenu(command, func):
             createMovieMenu(command, query)
         else:
             createMovieMenu(func)
+    if command == 'T':
+        xbmc.log('Func: %s' %func)
+        if func == 'Genres':
+            createMainMenus('genreTVShows')
+        elif func == 'Search':
+            query=getUserInput()
+            createTVShowMenu(command, query)
+        else:
+            createTVShowMenu(func)
     elif command == 'tvshow':
         createTVShowMenu(func)
     elif command == 'seasons':
@@ -55,7 +58,12 @@ def createMainMenus(command):
                         'Genres': ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'Romance', 'Science-Fiction', 'TV-Movie', 'Thriller', 'War', 'Western'],
                         'Search':'search'
                         },
-                     'TVShows WIP': ['kategorija1', 'kategorija2']
+                     'TVShows':
+                        {'Home': 'home',
+                        'TVShows': 'TVShows',
+                        'Genres': ['Action-Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'History', 'Kids', 'Music', 'Musical', 'Mystery', 'News', 'Reality', 'Romance', 'Sci-Fi-Fantasy', 'Soap', 'Talk', 'War-Politics', 'Western'],
+                        'Search':'search'
+                        }
                      }
 
     if command == 'main':
@@ -80,12 +88,34 @@ def createMainMenus(command):
         xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
         xbmcplugin.endOfDirectory(__handle__)
 
+    elif command == 'subTVShows':
+        listings = []
+        for item in mainMenuItems['TVShows'].keys():
+            li = xbmcgui.ListItem(label=item)
+            li.setInfo('folder', {'title': item})
+            url = '{0}?cmd={1}&func={2}'.format(__url__, 'T', item)
+            isFolder = True
+            listings.append((url,li,isFolder))
+        xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
+        xbmcplugin.endOfDirectory(__handle__)
+
     elif command == 'genreMovies':
         listings = []
         for item in mainMenuItems['Movies']['Genres']:
             li = xbmcgui.ListItem(label=item)
             li.setInfo('folder', {'title': item})
             url = '{0}?cmd={1}&func={2}'.format(__url__, 'M', item)
+            isFolder = True
+            listings.append((url,li,isFolder))
+        xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
+        xbmcplugin.endOfDirectory(__handle__)
+
+    elif command == 'genreTVShows':
+        listings = []
+        for item in mainMenuItems['TVShows']['Genres']:
+            li = xbmcgui.ListItem(label=item)
+            li.setInfo('folder', {'title': item})
+            url = '{0}?cmd={1}&func={2}'.format(__url__, 'T', item)
             isFolder = True
             listings.append((url,li,isFolder))
         xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
@@ -115,17 +145,19 @@ def createMovieMenu(command, search=None, page=1):
     xbmcplugin.endOfDirectory(__handle__)
 
 
-def createTVShowMenu(handle):
+def createTVShowMenu(command):
 
-    tvShows = getTVShows()
+    tvShows = getTVShows(command)
 
     listings = []
     for tvShow in tvShows:
-        if (tvshow['year'] == date.today().year):
-            li = xbmcgui.ListItem(label=tvShow['name'], thumbnailImage=tvShow['thumb'])
+        if (tvShow['show_url'].startswith('/watch/tv/')):
+            li = xbmcgui.ListItem(label=tvShow['title'])
             li.setArt({'fanart': 'https:'+tvShow['image'], 'icon': 'https:'+tvShow['image']})
-            li.setInfo('video', {'title': tvShow['name'], 'genre': tvShow['genre']})
-            url = url = '{0}?cmd=seasons&show_id={1}'.format(__url__, tvshow['show_id'])
+            li.setInfo('video', {'title': tvShow['title'], 'genre': tvShow['genres'], 'year': tvShow['year']})
+            if not tvShow['ytLink'] == None:
+                li.addContextMenuItems([('Trailer', 'PlayMedia(plugin://plugin.video.youtube/?action=play_video&videoid=%s)' %tvShow['ytLink'])])
+            url = url = '{0}?cmd=seasons&show_url={1}'.format(__url__, tvShow['show_url'])
             isFolder = True
             listings.append((url,li,isFolder))
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))

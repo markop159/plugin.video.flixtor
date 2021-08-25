@@ -92,8 +92,68 @@ def getMovies(command, page=1, search=None):
     xbmc.log("Items: %s" %items,2)
     return items
 
-def getTVShows(handle):
-    shows = ''
+def getTVShows(command, page=1, search=None):
+    xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
+
+    #url = 'https://flixtor.se/home'
+    if command == 'Home':
+        showsURL = 'https://flixtor.se/home'
+    elif command == 'Movies':
+        showsURL = 'https://flixtor.se/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %page
+    elif search == None:
+        showsURL ='https://flixtor.se/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(command, page)
+    else:
+        showsURL ='https://flixtor.se/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(search, page)
+    #moviesURL ='https://flixtor.se/home'
+    shows = s.get(showsURL)
+    xbmc.log("Movies: %s" %shows.text,2)
+    #cookie = s.cookies
+    soup = BeautifulSoup(shows.text, 'html.parser')
+
+    div_shows = soup.find_all('div', attrs={'class': 'py-2'}) #all movies
+
+    items = []
+    #items.append(cookie.get_dict()['_clrnc'])
+
+    for show in div_shows:
+        # parse each movie to json
+        #xbmc.log("Movie: %s" %movie,2)
+        try:
+            title = show.find('div', {'class': 'p-0 card-text title sh1'}).text
+            year = show.find('div', {'class': 'p-0 card-text t12 sh1'}).text
+            genres = show.find('div', {'class': 'p-0 card-text mt-auto mx-2 t10 genres sh1'}).text
+            image = show.find('img', {'class': 'card-img-top'})['src']
+            show_url = show.find('div', {'class': 'cflip m-0 link2'})['data-href']
+            try:
+                ytlink = show.find('span', {'class': 'ytt fa fa-youtube-play fa-2x fa-fw text-danger pointer'})['data-ytlink']
+            except:
+                ytlink = None
+
+            xbmc.log("TV Show: %s; %s; %s; %s; %s" %(title,year,genres,image,show_url),2)
+
+            items.append({
+                'title': title,
+                'year': year,
+                'genres': genres,
+                'image': image,
+                'show_url': show_url,
+                'ytLink': ytlink
+                })
+        except:
+            continue
+
+
+    #xbmc.log("Movies headers: %s" %movies.headers,2)
+    #xbmc.log("Movies Cookies: %s" %movies.cookies,2)
+    #xbmc.log("Movies Text: %s" %movies.text,2)
+    #xbmc.log("Movies Text: %s" %div_movies,2)
+
+    #js = js2py.eval_js()
+    #items.append({
+    #'cookie':cookie
+    #})
+    xbmc.log("Items: %s" %items,2)
+    return items
 
 def getSeasons(show_id):
     seasons = ''
