@@ -7,6 +7,7 @@ import requests, json
 import xbmc, xbmcplugin, xbmcaddon, xbmcgui
 #import xmltodict
 import time
+import base64
 import xml.etree.ElementTree as ET
 from datetime import datetime as dt
 from datetime import timedelta
@@ -22,7 +23,7 @@ __addonname__ = __addon__.getAddonInfo('name')
 __addondir__ = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __handle__ = int(sys.argv[1])
 
-_stream_file = os.path.join(__addondir__, 'video.strm')
+#_stream_file = os.path.join(__addondir__, 'video.strm')
 
 s = requests.Session()
 # internal imports
@@ -35,7 +36,7 @@ def getMovies(command):
     if command == 'Home':
         moviesURL = 'https://flixtor.se/home'
     else:
-        moviesURL ='https://flixtor.se/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/1'
+        moviesURL ='https://flixtor.se/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/1' %command
     #moviesURL ='https://flixtor.se/home'
     movies = s.get(moviesURL)
     #xbmc.log("Movies: %s" %movies.cookies,2)
@@ -56,6 +57,7 @@ def getMovies(command):
             genres = movie.find('div', {'class': 'p-0 card-text mt-auto mx-2 t10 genres sh1'}).text
             image = movie.find('img', {'class': 'card-img-top'})['src']
             movie_id = movie.find('span', {'class': 'favorite fa-fw t14 text-info pointer'})['data-pid']
+            ytlink = movie.find('span', {'class': 'ytt fa fa-youtube-play fa-2x fa-fw text-danger pointer'})['data-ytlink']
 
             xbmc.log("Movie: %s; %s; %s; %s; %s" %(title,year,genres,image,movie_id),2)
 
@@ -65,6 +67,7 @@ def getMovies(command):
                 'genres': genres,
                 'image': image,
                 'movie_id': movie_id,
+                'ytLink': ytlink
                 })
         except:
             continue
@@ -150,7 +153,6 @@ def translate(encoded_ajax):
     return g;
     }
     '''
-    import base64
     trans = js2py.eval_js(js_code)
     halfDecodedAjax = trans(encoded_ajax)
     translate = js2py.eval_js(js_code2)
@@ -167,21 +169,37 @@ def getKey():
     xbmc.log("Key: %s" %key,2)
     return key
 
-def play_video(movie_id):
-    """
-    Play a video by the provided path.
-    :param path: str
-    :return: None
-    """
-    if not os.path.exists(__addondir__):
-        os.makedirs(__addondir__)
+def play_video(video_id):
+    #if not os.path.exists(__addondir__):
+    #    os.makedirs(__addondir__)
     #xbmc.log('Play: %s; %s' %(movie_id,cookie))
-    video_json = getMovie(movie_id)
+    video_json = getMovie(video_id)
     # Pass the item to the Kodi player.
-    strm_file=open(_stream_file, 'w+')
-    strm_file.write(json.loads(video_json)['file'])
-    strm_file.close()
-    li = xbmcgui.ListItem('Test')
+    #strm_file=open(_stream_file, 'w+')
+    #strm_file.write(json.loads(video_json)['file'])
+    #strm_file.close()
+    #xbmc.log('Movie: %s' %movie,2)
+    #movie = json.loads(movie)
+    #xbmc.log('Movie2: %s' %movie,2)
+    #file = os.path.join(__addondir__, 'video.strm')
+    li = xbmcgui.ListItem(path=json.loads(video_json)['file'])
+    #li.setInfo('video', {'Title': title})
+    #xbmc.log('File: %s' %file,2)
+    #playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+    #playlist.add(url=file, listitem=li)
 
-    xbmcplugin.setResolvedUrl(__handle__, succeeded=True, listitem=li)
-    xbmc.Player().play(os.path.join(__addondir__, 'video.strm'))
+    #xbmc.Player().play(file)
+    #while not Player().isPlaying():
+    #    xbmc.sleep(10)
+    #xbmc.Player().updateInfoTag(li)
+    xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
+
+
+    '''
+    listitem = xbmcgui.ListItem('Ironman')
+    listitem.setInfo('video', {'Title': 'Ironman', 'Genre': 'Science Fiction'})
+    xbmc.Player().play(url, listitem, windowed)
+    xbmc.Player().play(playlist, listitem, windowed, startpos)
+    '''
+
+    #xbmcplugin.setResolvedUrl(__handle__, succeeded=True, listitem=li)

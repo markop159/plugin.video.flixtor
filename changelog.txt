@@ -1,1 +1,9 @@
 0.0.1-alpha
+  - Initial Version
+
+0.0.3-alpha
+  - added some more info to listitems
+
+0.1.0-alpha
+  - movies playback working
+  - genres submenu working
