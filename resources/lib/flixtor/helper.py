@@ -29,17 +29,21 @@ s = requests.Session()
 # internal imports
 from flixtor.logging import log, LOGLEVEL, log_error
 
-def getMovies(command):
+def getMovies(command, page=1, search=None):
     xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
 
     #url = 'https://flixtor.se/home'
     if command == 'Home':
         moviesURL = 'https://flixtor.se/home'
+    elif command == 'Movies':
+        moviesURL = 'https://flixtor.se/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %page
+    elif search == None:
+        moviesURL ='https://flixtor.se/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(command, page)
     else:
-        moviesURL ='https://flixtor.se/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/1' %command
+        moviesURL ='https://flixtor.se/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(search, page)
     #moviesURL ='https://flixtor.se/home'
     movies = s.get(moviesURL)
-    #xbmc.log("Movies: %s" %movies.cookies,2)
+    xbmc.log("Movies: %s" %movies.text,2)
     #cookie = s.cookies
     soup = BeautifulSoup(movies.text, 'html.parser')
 
@@ -57,7 +61,10 @@ def getMovies(command):
             genres = movie.find('div', {'class': 'p-0 card-text mt-auto mx-2 t10 genres sh1'}).text
             image = movie.find('img', {'class': 'card-img-top'})['src']
             movie_id = movie.find('span', {'class': 'favorite fa-fw t14 text-info pointer'})['data-pid']
-            ytlink = movie.find('span', {'class': 'ytt fa fa-youtube-play fa-2x fa-fw text-danger pointer'})['data-ytlink']
+            try:
+                ytlink = movie.find('span', {'class': 'ytt fa fa-youtube-play fa-2x fa-fw text-danger pointer'})['data-ytlink']
+            except:
+                ytlink = None
 
             xbmc.log("Movie: %s; %s; %s; %s; %s" %(title,year,genres,image,movie_id),2)
 
@@ -203,3 +210,10 @@ def play_video(video_id):
     '''
 
     #xbmcplugin.setResolvedUrl(__handle__, succeeded=True, listitem=li)
+
+def getUserInput():
+    keyboard = xbmc.Keyboard()
+    keyboard.doModal()
+    if (keyboard.isConfirmed()):
+        input = keyboard.getText()
+    return input

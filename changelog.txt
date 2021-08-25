@@ -7,3 +7,7 @@
 0.1.0-alpha
   - movies playback working
   - genres submenu working
+
+0.1.5-alpha
+  - Search movies function added
+  - youtube trailers for Movies

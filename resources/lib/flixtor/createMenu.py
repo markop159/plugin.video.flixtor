@@ -17,7 +17,7 @@ __url__ = sys.argv[0]
 __handle__ = int(sys.argv[1])
 
 # Internal imports
-from flixtor.helper import getMovies, getTVShows, getSeasons, getEpisodes
+from flixtor.helper import getMovies, getTVShows, getSeasons, getEpisodes, getUserInput
 from flixtor.logging import log, LOGLEVEL, log_error
 
 
@@ -34,6 +34,9 @@ def createMenu(command, func):
         xbmc.log('Func: %s' %func)
         if func == 'Genres':
             createMainMenus('genreMovies')
+        elif func == 'Search':
+            query=getUserInput()
+            createMovieMenu(command, query)
         else:
             createMovieMenu(func)
     elif command == 'tvshow':
@@ -48,6 +51,7 @@ def createMenu(command, func):
 def createMainMenus(command):
     mainMenuItems = {'Movies':
                         {'Home': 'home',
+                        'Movies': 'movies',
                         'Genres': ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'Romance', 'Science-Fiction', 'TV-Movie', 'Thriller', 'War', 'Western'],
                         'Search':'search'
                         },
@@ -87,9 +91,12 @@ def createMainMenus(command):
         xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
         xbmcplugin.endOfDirectory(__handle__)
 
-def createMovieMenu(command):
+def createMovieMenu(command, search=None, page=1):
 
-    movies = getMovies(command)
+    if search == None:
+        movies = getMovies(command, page)
+    else:
+        movies = getMovies(command, page, search)
 
     listings = []
     for movie in movies:
@@ -98,6 +105,8 @@ def createMovieMenu(command):
             li = xbmcgui.ListItem(label=movie['title'])
             li.setArt({'fanart': 'https:'+movie['image'], 'icon': 'https:'+movie['image']})
             li.setInfo('video', {'title': movie['title'], 'genre': movie['genres'], 'year': movie['year']})
+            if not movie['ytLink'] == None:
+                li.addContextMenuItems([('Trailer', 'PlayMedia(plugin://plugin.video.youtube/?action=play_video&videoid=%s)' %movie['ytLink'])])
             li.setProperty('IsPlayable', 'true')
             url = '{0}?cmd=play&video={1}&title={2}&genre={3}&year={4}'.format(__url__, movie['movie_id'], movie['title'], movie['genres'], movie['year'])
             isFolder = False
