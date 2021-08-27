@@ -20,3 +20,6 @@
 
 0.2.5-alpha
   - code cleanup
+
+  0.3.0-alpha
+    - code restructuring
