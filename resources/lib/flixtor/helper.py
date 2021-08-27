@@ -23,6 +23,8 @@ __addonname__ = __addon__.getAddonInfo('name')
 __addondir__ = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __handle__ = int(sys.argv[1])
 
+_domain_ = 'https://flixtor.se'
+
 #_stream_file = os.path.join(__addondir__, 'video.strm')
 
 s = requests.Session()
@@ -34,13 +36,13 @@ def getMovies(command, page=1, search=None):
 
     #url = 'https://flixtor.se/home'
     if command == 'Home':
-        moviesURL = 'https://flixtor.se/home'
+        moviesURL = '%s/home' %_domain_
     elif command == 'Movies':
-        moviesURL = 'https://flixtor.se/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %page
+        moviesURL = '%s/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, page)
     elif search == None:
-        moviesURL ='https://flixtor.se/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(command, page)
+        moviesURL ='%s/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(_domain_, command, page)
     else:
-        moviesURL ='https://flixtor.se/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(search, page)
+        moviesURL ='%s/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, search, page)
     #moviesURL ='https://flixtor.se/home'
     movies = s.get(moviesURL)
     xbmc.log("Movies: %s" %movies.text,2)
@@ -97,13 +99,13 @@ def getTVShows(command, page=1, search=None):
 
     #url = 'https://flixtor.se/home'
     if command == 'Home':
-        showsURL = 'https://flixtor.se/home'
+        showsURL = '%s/home' %_domain_
     elif command == 'Movies':
-        showsURL = 'https://flixtor.se/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %page
+        showsURL = '%s/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, page)
     elif search == None:
-        showsURL ='https://flixtor.se/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(command, page)
+        showsURL ='%s/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(_domain_, command, page)
     else:
-        showsURL ='https://flixtor.se/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(search, page)
+        showsURL ='%s/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, search, page)
     #moviesURL ='https://flixtor.se/home'
     shows = s.get(showsURL)
     xbmc.log("Movies: %s" %shows.text,2)
@@ -166,9 +168,9 @@ def getMovie(movie_id):
     #key = '1628660729095'
     #movie_id2 = '24475371'
     clrnc2 = 'mr3jnfsgluajmqndtc0tlgoh8m'
-    s.get('https://flixtor.se/watch/movie/%s' %movie_id)
+    s.get('%s/watch/movie/%s' %(_domain_, movie_id))
     clrnc = s.cookies.get_dict()['_clrnc']
-    url = 'https://flixtor.se/ajax/v4/m/%s?_=%s' %(movie_id, key)
+    url = '%s/ajax/v4/m/%s?_=%s' %(_domain_, movie_id, key)
     path = "/ajax/v4/m/%s?_=%s" %(movie_id, key)
     cookie = "_clrnc=%s; _pk_id.1.6ee3=e8c493139aa2c07a.1628233034.; _pk_ses.1.6ee3=1" %clrnc
 
