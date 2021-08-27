@@ -3,12 +3,8 @@ here we create menus (channel and epg)
 '''
 # External imports
 import sys, os
-import urllib
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
-import time
-import json
-from datetime import datetime as dt
-from datetime import timedelta, date
+from datetime import date
 
 # Addon variables
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'resources', 'lib'))
@@ -17,7 +13,7 @@ __url__ = sys.argv[0]
 __handle__ = int(sys.argv[1])
 
 # Internal imports
-from flixtor.helper import getMovies, getTVShows, getSeasons, getEpisodes, getUserInput
+from flixtor.getter import getMovies, getTVShows, getSeasons, getEpisodes, getUserInput
 
 def createMenu(command, func, page=1):
     # Creates menu depending on command
@@ -149,7 +145,6 @@ def createMovieMenu(func, search=None, page=1):
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
     xbmcplugin.endOfDirectory(__handle__)
 
-
 def createTVShowMenu(command):
 
     tvShows = getTVShows(command)
@@ -168,7 +163,6 @@ def createTVShowMenu(command):
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
     xbmcplugin.endOfDirectory(__handle__)
 
-
 def createSeasonsMenu(handle):
 
     seasons = getSeasons(show_id)
@@ -183,7 +177,6 @@ def createSeasonsMenu(handle):
         listings.append((url,li,isFolder))
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
     xbmcplugin.endOfDirectory(__handle__)
-
 
 def createEpisodesMenu(handle):
 

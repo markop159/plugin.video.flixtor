@@ -14,7 +14,7 @@ __handle__ = int(sys.argv[1])
 
 # Internal imports
 from flixtor.createMenu import createMenu
-from flixtor.helper import play_video
+from flixtor.play_video import play_video
 
 # Main function
 def main():

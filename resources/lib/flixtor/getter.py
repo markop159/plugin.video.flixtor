@@ -3,18 +3,10 @@ all file downloading and channels extracting is done here
 '''
 # external imports
 import sys, os
-import requests, json
+import requests
 import xbmc, xbmcplugin, xbmcaddon, xbmcgui
-import time
-import base64
-import xml.etree.ElementTree as ET
-from datetime import datetime as dt
-from datetime import timedelta
-from collections import defaultdict
-from resources.lib import js2py
-from urllib.request import unquote
 from bs4 import BeautifulSoup
-
+from flixtor.javascript import translate, getKey
 
 # addon variables
 __addon__ = xbmcaddon.Addon()
@@ -22,6 +14,7 @@ __addonname__ = __addon__.getAddonInfo('name')
 __addondir__ = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __handle__ = int(sys.argv[1])
 
+# domain
 _domain_ = 'https://flixtor.se'
 
 s = requests.Session()
@@ -172,44 +165,6 @@ def getMovie(movie_id):
     xbmc.log("Movie: %s" %movieJson,2)
 
     return movieJson
-
-def translate(encoded_ajax):
-    js_code = '''
-    function trans(f){
-	var g = f.replace(/[a-zA-Z]/g, function(a) {
-		    return String.fromCharCode(("Z" >= a ? 90 : 122) >= (a = a.charCodeAt(0) + 13) ? a : a - 26)
-	    })
-	   return g;
-    }
-    '''
-    js_code2 = '''
-    function translate(f){
-    for (var g = decodeURIComponent(f), k = [], l = 0; l < g.length; l++) {
-            var m = g.charCodeAt(l);
-            k[l] = 33 <= m && 126 >= m ? String.fromCharCode(33 + (m + 14) % 94) : String.fromCharCode(m)
-        }
-    g = k.join("");
-
-    return g;
-    }
-    '''
-    trans = js2py.eval_js(js_code)
-    halfDecodedAjax = trans(encoded_ajax)
-    translate = js2py.eval_js(js_code2)
-    decodedAjax = translate(base64.b64decode(halfDecodedAjax).decode())
-
-    return decodedAjax
-
-def getKey():
-    js = 'Math.round(new Date / 1E3)'
-    key = js2py.eval_js(js)
-    xbmc.log("Key: %s" %key,2)
-    return key
-
-def play_video(video_id):
-    video_json = getMovie(video_id)
-    li = xbmcgui.ListItem(path=json.loads(video_json)['file'])
-    xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
 
 def getUserInput():
     keyboard = xbmc.Keyboard()
