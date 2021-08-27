@@ -5,7 +5,6 @@ all file downloading and channels extracting is done here
 import sys, os
 import requests, json
 import xbmc, xbmcplugin, xbmcaddon, xbmcgui
-#import xmltodict
 import time
 import base64
 import xml.etree.ElementTree as ET
@@ -25,16 +24,11 @@ __handle__ = int(sys.argv[1])
 
 _domain_ = 'https://flixtor.se'
 
-#_stream_file = os.path.join(__addondir__, 'video.strm')
-
 s = requests.Session()
-# internal imports
-#from flixtor.logging import log, LOGLEVEL, log_error
 
 def getMovies(command, page=1, search=None):
     xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
 
-    #url = 'https://flixtor.se/home'
     if command == 'Home':
         moviesURL = '%s/home' %_domain_
     elif command == 'Movies':
@@ -43,16 +37,13 @@ def getMovies(command, page=1, search=None):
         moviesURL ='%s/ajax/show/movies/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(_domain_, command, page)
     else:
         moviesURL ='%s/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, search, page)
-    #moviesURL ='https://flixtor.se/home'
     movies = s.get(moviesURL)
     xbmc.log("Movies: %s" %movies.text,2)
-    #cookie = s.cookies
     soup = BeautifulSoup(movies.text, 'html.parser')
 
     div_movies = soup.find_all('div', attrs={'class': 'py-2'}) #all movies
 
     items = []
-    #items.append(cookie.get_dict()['_clrnc'])
 
     for movie in div_movies:
         # parse each movie to json
@@ -81,23 +72,12 @@ def getMovies(command, page=1, search=None):
         except:
             continue
 
-
-    #xbmc.log("Movies headers: %s" %movies.headers,2)
-    #xbmc.log("Movies Cookies: %s" %movies.cookies,2)
-    #xbmc.log("Movies Text: %s" %movies.text,2)
-    #xbmc.log("Movies Text: %s" %div_movies,2)
-
-    #js = js2py.eval_js()
-    #items.append({
-    #'cookie':cookie
-    #})
     xbmc.log("Items: %s" %items,2)
     return items
 
 def getTVShows(command, page=1, search=None):
     xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
 
-    #url = 'https://flixtor.se/home'
     if command == 'Home':
         showsURL = '%s/home' %_domain_
     elif command == 'Movies':
@@ -106,16 +86,13 @@ def getTVShows(command, page=1, search=None):
         showsURL ='%s/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(_domain_, command, page)
     else:
         showsURL ='%s/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, search, page)
-    #moviesURL ='https://flixtor.se/home'
     shows = s.get(showsURL)
     xbmc.log("Movies: %s" %shows.text,2)
-    #cookie = s.cookies
     soup = BeautifulSoup(shows.text, 'html.parser')
 
     div_shows = soup.find_all('div', attrs={'class': 'py-2'}) #all movies
 
     items = []
-    #items.append(cookie.get_dict()['_clrnc'])
 
     for show in div_shows:
         # parse each movie to json
@@ -150,10 +127,6 @@ def getTVShows(command, page=1, search=None):
     #xbmc.log("Movies Text: %s" %movies.text,2)
     #xbmc.log("Movies Text: %s" %div_movies,2)
 
-    #js = js2py.eval_js()
-    #items.append({
-    #'cookie':cookie
-    #})
     xbmc.log("Items: %s" %items,2)
     return items
 
@@ -165,8 +138,6 @@ def getEpisodes(show_id):
 
 def getMovie(movie_id):
     key = getKey()
-    #key = '1628660729095'
-    #movie_id2 = '24475371'
     clrnc2 = 'mr3jnfsgluajmqndtc0tlgoh8m'
     s.get('%s/watch/movie/%s' %(_domain_, movie_id))
     clrnc = s.cookies.get_dict()['_clrnc']
@@ -228,9 +199,6 @@ def translate(encoded_ajax):
     decodedAjax = translate(base64.b64decode(halfDecodedAjax).decode())
 
     return decodedAjax
-    #xbmc.log("JS2PY : %s" %test3,2)
-    #xbmc.log("Translate : %s" %base64.b64decode(test3).decode(),2)
-    #xbmc.log("Translate2 : %s" %test4,2)
 
 def getKey():
     js = 'Math.round(new Date / 1E3)'
@@ -239,39 +207,9 @@ def getKey():
     return key
 
 def play_video(video_id):
-    #if not os.path.exists(__addondir__):
-    #    os.makedirs(__addondir__)
-    #xbmc.log('Play: %s; %s' %(movie_id,cookie))
     video_json = getMovie(video_id)
-    # Pass the item to the Kodi player.
-    #strm_file=open(_stream_file, 'w+')
-    #strm_file.write(json.loads(video_json)['file'])
-    #strm_file.close()
-    #xbmc.log('Movie: %s' %movie,2)
-    #movie = json.loads(movie)
-    #xbmc.log('Movie2: %s' %movie,2)
-    #file = os.path.join(__addondir__, 'video.strm')
     li = xbmcgui.ListItem(path=json.loads(video_json)['file'])
-    #li.setInfo('video', {'Title': title})
-    #xbmc.log('File: %s' %file,2)
-    #playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
-    #playlist.add(url=file, listitem=li)
-
-    #xbmc.Player().play(file)
-    #while not Player().isPlaying():
-    #    xbmc.sleep(10)
-    #xbmc.Player().updateInfoTag(li)
     xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
-
-
-    '''
-    listitem = xbmcgui.ListItem('Ironman')
-    listitem.setInfo('video', {'Title': 'Ironman', 'Genre': 'Science Fiction'})
-    xbmc.Player().play(url, listitem, windowed)
-    xbmc.Player().play(playlist, listitem, windowed, startpos)
-    '''
-
-    #xbmcplugin.setResolvedUrl(__handle__, succeeded=True, listitem=li)
 
 def getUserInput():
     keyboard = xbmc.Keyboard()

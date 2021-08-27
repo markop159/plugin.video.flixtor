@@ -6,7 +6,6 @@ import sys, os, json
 import xbmcaddon, xbmc
 
 from urllib.parse import parse_qsl
-#from resources.lib.flixtor.helper import play_video
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'resources', 'lib'))
 __addon__ = xbmcaddon.Addon()
@@ -14,7 +13,6 @@ __url__ = sys.argv[0]
 __handle__ = int(sys.argv[1])
 
 # Internal imports
-#from flixtor.logging import log, LOGLEVEL, log_error
 from flixtor.createMenu import createMenu
 from flixtor.helper import play_video
 
@@ -27,8 +25,6 @@ def main():
     title = args.get('title', None)
     func = args.get('func', None)
     page = args.get('page', 1)
-    #genre = args.get('genre', None)
-    #year = args.get('year', None)
     xbmc.log('Args: %s' %args)
     if cmd is None:
         createMenu('main', __handle__)

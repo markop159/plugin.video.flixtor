@@ -18,7 +18,6 @@ __handle__ = int(sys.argv[1])
 
 # Internal imports
 from flixtor.helper import getMovies, getTVShows, getSeasons, getEpisodes, getUserInput
-#from flixtor.logging import log, LOGLEVEL, log_error
 
 def createMenu(command, func, page=1):
     # Creates menu depending on command

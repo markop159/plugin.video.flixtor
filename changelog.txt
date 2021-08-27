@@ -17,3 +17,6 @@
 
 0.2.1-alpha
   - Added pages for Movies
+
+0.2.5-alpha
+  - code cleanup
