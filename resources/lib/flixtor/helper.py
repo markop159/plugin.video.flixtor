@@ -27,7 +27,7 @@ __handle__ = int(sys.argv[1])
 
 s = requests.Session()
 # internal imports
-from flixtor.logging import log, LOGLEVEL, log_error
+#from flixtor.logging import log, LOGLEVEL, log_error
 
 def getMovies(command, page=1, search=None):
     xbmc.log(msg="Test Message", level=xbmc.LOGINFO)

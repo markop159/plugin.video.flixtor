@@ -14,7 +14,7 @@ __url__ = sys.argv[0]
 __handle__ = int(sys.argv[1])
 
 # Internal imports
-from flixtor.logging import log, LOGLEVEL, log_error
+#from flixtor.logging import log, LOGLEVEL, log_error
 from flixtor.createMenu import createMenu
 from flixtor.helper import play_video
 
