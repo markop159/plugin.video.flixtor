@@ -26,6 +26,7 @@ def main():
     video_id = args.get('video', None)
     title = args.get('title', None)
     func = args.get('func', None)
+    page = args.get('page', 1)
     #genre = args.get('genre', None)
     #year = args.get('year', None)
     xbmc.log('Args: %s' %args)
@@ -37,7 +38,7 @@ def main():
         xbmc.log('Args: %s' %func)
         play_video(video_id)
     else:
-        createMenu(cmd, func)
+        createMenu(cmd, func, page)
 
 if __name__ == '__main__':
 	__handle__ = int(sys.argv[1])

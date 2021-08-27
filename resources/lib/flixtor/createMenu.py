@@ -20,7 +20,7 @@ __handle__ = int(sys.argv[1])
 from flixtor.helper import getMovies, getTVShows, getSeasons, getEpisodes, getUserInput
 #from flixtor.logging import log, LOGLEVEL, log_error
 
-def createMenu(command, func):
+def createMenu(command, func, page=1):
     # Creates menu depending on command
     xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
     xbmc.log(msg="%s" %command, level=xbmc.LOGINFO)
@@ -30,9 +30,9 @@ def createMenu(command, func):
             createMainMenus('genreMovies')
         elif func == 'Search':
             query=getUserInput()
-            createMovieMenu(command, query)
+            createMovieMenu(func, query)
         else:
-            createMovieMenu(func)
+            createMovieMenu(func, None, page)
     if command == 'T':
         xbmc.log('Func: %s' %func)
         if func == 'Genres':
@@ -121,12 +121,12 @@ def createMainMenus(command):
         xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
         xbmcplugin.endOfDirectory(__handle__)
 
-def createMovieMenu(command, search=None, page=1):
+def createMovieMenu(func, search=None, page=1):
 
     if search == None:
-        movies = getMovies(command, page)
+        movies = getMovies(func, page)
     else:
-        movies = getMovies(command, page, search)
+        movies = getMovies(func, page, search)
 
     listings = []
     for movie in movies:
@@ -141,6 +141,12 @@ def createMovieMenu(command, search=None, page=1):
             url = '{0}?cmd=play&video={1}&title={2}&genre={3}&year={4}'.format(__url__, movie['movie_id'], movie['title'], movie['genres'], movie['year'])
             isFolder = False
             listings.append((url,li,isFolder))
+    if not func == 'Home':
+        page = int(page)+1
+        url = '{0}?cmd=M&func={1}&page={2}'.format(__url__, func, page)
+        li = xbmcgui.ListItem(label='go to page %s' %page)
+        isFolder = True
+        listings.append((url,li,isFolder))
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
     xbmcplugin.endOfDirectory(__handle__)
 
