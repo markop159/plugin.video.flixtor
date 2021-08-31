@@ -1,5 +1,5 @@
 <?xml version="2.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.flixtor" name="Flixtor" version="0.3.0-alpha" provider-name="Markop159">
+<addon id="plugin.video.flixtor" name="Flixtor" version="0.8.0-beta" provider-name="Markop159">
 	<requires>
 		<import addon="script.module.requests" />
 		<import addon="script.module.beautifulsoup4" />

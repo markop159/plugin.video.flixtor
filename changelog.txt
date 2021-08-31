@@ -23,3 +23,6 @@
 
 0.3.0-alpha
   - code restructuring
+
+0.8.0-beta
+  - TV Shows working

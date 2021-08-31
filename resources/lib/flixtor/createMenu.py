@@ -13,12 +13,12 @@ __url__ = sys.argv[0]
 __handle__ = int(sys.argv[1])
 
 # Internal imports
-from flixtor.getter import getMovies, getTVShows, getSeasons, getEpisodes, getUserInput
+from flixtor.getter import getMovies, getTVShows, getEpisodes, getUserInput
 
 def createMenu(command, func, page=1):
     # Creates menu depending on command
     xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
-    xbmc.log(msg="%s" %command, level=xbmc.LOGINFO)
+    xbmc.log(msg="%s, %s" %(command, func), level=xbmc.LOGINFO)
     if command == 'M':
         xbmc.log('Func: %s' %func)
         if func == 'Genres':
@@ -36,11 +36,9 @@ def createMenu(command, func, page=1):
             query=getUserInput()
             createTVShowMenu(command, query)
         else:
-            createTVShowMenu(func)
+            createTVShowMenu(func, None, page)
     elif command == 'tvshow':
         createTVShowMenu(func)
-    elif command == 'seasons':
-        createSeasonsMenu(func)
     elif command == 'episodes':
         createEpisodesMenu(func)
     else:
@@ -145,9 +143,9 @@ def createMovieMenu(func, search=None, page=1):
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
     xbmcplugin.endOfDirectory(__handle__)
 
-def createTVShowMenu(command):
+def createTVShowMenu(command, query=None, page=1):
 
-    tvShows = getTVShows(command)
+    tvShows = getTVShows(command, page, query)
 
     listings = []
     for tvShow in tvShows:
@@ -157,37 +155,30 @@ def createTVShowMenu(command):
             li.setInfo('video', {'title': tvShow['title'], 'genre': tvShow['genres'], 'year': tvShow['year']})
             if not tvShow['ytLink'] == None:
                 li.addContextMenuItems([('Trailer', 'PlayMedia(plugin://plugin.video.youtube/?action=play_video&videoid=%s)' %tvShow['ytLink'])])
-            url = url = '{0}?cmd=seasons&show_url={1}'.format(__url__, tvShow['show_url'])
+            url = url = '{0}?cmd=episodes&func={1}'.format(__url__, tvShow['show_url'])
             isFolder = True
             listings.append((url,li,isFolder))
-    xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
-    xbmcplugin.endOfDirectory(__handle__)
-
-def createSeasonsMenu(handle):
-
-    seasons = getSeasons(show_id)
-
-    listings = []
-    for season in seasons:
-        li = xbmcgui.ListItem(label=season['name'], thumbnailImage=season['thumb'])
-        li.setProperty('fanart_image', season['fanart'])
-        li.setInfo('video', {'title': season['name'], 'genre': season['genre']})
-        url = url = '{0}?cmd=episodes&show_id={1}'.format(__url__, season['show_id'])
+    if not command == 'Home':
+        page = int(page)+1
+        url = '{0}?cmd=T&func={1}&page={2}'.format(__url__, command, page)
+        li = xbmcgui.ListItem(label='go to page %s' %page)
         isFolder = True
         listings.append((url,li,isFolder))
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))
     xbmcplugin.endOfDirectory(__handle__)
 
-def createEpisodesMenu(handle):
+def createEpisodesMenu(func):
 
-    episodes = getEpisodes(show_id)
+    episodes = getEpisodes(func)
 
     listings = []
     for episode in episodes:
-        li = xbmcgui.ListItem(label=episode['name'], thumbnailImage=episode['thumb'])
-        li.setProperty('fanart_image', episode['fanart'])
-        li.setInfo('video', {'title': episode['name'], 'genre': episode['genre']})
-        url = episode['url']
+        label = "S%02dE%02d: %s" %(int(episode['season']), int(episode['episode']), episode['title'])
+        li = xbmcgui.ListItem(label=label)
+        li.setArt({'fanart': episode['image'], 'icon': episode['image']})
+        li.setInfo('video', {'title': episode['title'], 'premiered': episode['premiered']})
+        li.setProperty('IsPlayable', 'true')
+        url = '{0}?cmd=play&video={1}'.format(__url__, episode['episode_id'])
         isFolder = False
         listings.append((url,li,isFolder))
     xbmcplugin.addDirectoryItems(__handle__,listings,len(listings))

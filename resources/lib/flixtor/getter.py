@@ -73,14 +73,14 @@ def getTVShows(command, page=1, search=None):
 
     if command == 'Home':
         showsURL = '%s/home' %_domain_
-    elif command == 'Movies':
+    elif command == 'TVShows':
         showsURL = '%s/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, page)
     elif search == None:
         showsURL ='%s/ajax/show/tvshows/all/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/%s/latest/page/%s' %(_domain_, command, page)
     else:
         showsURL ='%s/ajax/show/search/%s/from/1900/to/2099/rating/0/votes/0/language/all/type/all/genre/all/latest/page/%s' %(_domain_, search, page)
     shows = s.get(showsURL)
-    xbmc.log("Movies: %s" %shows.text,2)
+    xbmc.log("Shows: %s" %shows.text,2)
     soup = BeautifulSoup(shows.text, 'html.parser')
 
     div_shows = soup.find_all('div', attrs={'class': 'py-2'}) #all movies
@@ -123,15 +123,47 @@ def getTVShows(command, page=1, search=None):
     xbmc.log("Items: %s" %items,2)
     return items
 
-def getSeasons(show_id):
-    seasons = ''
+def getEpisodes(url):
+    xbmc.log(msg="Test Message", level=xbmc.LOGINFO)
 
-def getEpisodes(show_id):
-    episode = ''
+    episodes = s.get('%s%s' %(_domain_,url))
+    xbmc.log("Movies: %s" %episodes.text,2)
+    soup = BeautifulSoup(episodes.text, 'html.parser')
+
+    html_episodes = soup.find_all('tr', attrs={'itemprop': 'episode'}) #all episodes
+
+    items = []
+
+    for episode in html_episodes:
+        # parse each episode to json
+        xbmc.log("Episode: %s" %episode,2)
+        try:
+            title = episode.find('div', {'class': 'epTitle'}).text
+            epNum = episode.find('div', {'class': 'progressOuter resetwatchedep'})['data-pep']
+            sNum = episode.find('div', {'class': 'progressOuter resetwatchedep'})['data-pes']
+            datePublished = episode.find('td', {'class': 'middle nowrap'})['content']
+            episode_id = episode.find('span', {'class': 'progressInner'})['data-barid']
+            image = episode.find('img', {'alt': 'Episode Thumbnail'})['content']
+
+            xbmc.log("Episode: %s; %s; %s; %s; %s; %s" %(title,epNum,sNum,datePublished,episode_id,image),2)
+
+            items.append({
+                'title': title,
+                'episode': epNum,
+                'season': sNum,
+                'premiered': datePublished,
+                'episode_id': episode_id,
+                'image': image
+                })
+        except:
+            continue
+
+    xbmc.log("Items: %s" %items,2)
+    return items
 
 def getMovie(movie_id):
     key = getKey()
-    clrnc2 = 'mr3jnfsgluajmqndtc0tlgoh8m'
+    #clrnc2 = 'mr3jnfsgluajmqndtc0tlgoh8m'
     s.get('%s/watch/movie/%s' %(_domain_, movie_id))
     clrnc = s.cookies.get_dict()['_clrnc']
     url = '%s/ajax/v4/m/%s?_=%s' %(_domain_, movie_id, key)
@@ -165,6 +197,44 @@ def getMovie(movie_id):
     xbmc.log("Movie: %s" %movieJson,2)
 
     return movieJson
+
+def getEpisode(episode_id):
+    key = getKey()
+    #clrnc2 = 'mr3jnfsgluajmqndtc0tlgoh8m'
+    s.get('%s/watch/tv/%s' %(_domain_, episode_id.split("/")[0]))
+    clrnc = s.cookies.get_dict()['_clrnc']
+    url = '%s/ajax/v4/e/%s?_=%s' %(_domain_, episode_id, key)
+    path = "/ajax/v4/e/%s?_=%s" %(episode_id, key)
+    cookie = "_clrnc=%s; _pk_id.1.6ee3=e8c493139aa2c07a.1628233034.; _pk_ses.1.6ee3=1" %clrnc
+
+    headers = {
+    "method":"GET",
+    "authority":"flixtor.se",
+    "scheme":"https",
+    "path":path,
+    "pragma":"no-cache",
+    "cache-control":"no-cache",
+    "accept":"text/plain, */*; q=0.01",
+    "x-requested-with":"XMLHttpRequest",
+    "sec-ch-ua-mobile":"?0",
+    "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36 Edg/92.0.902.62",
+    "sec-fetch-site":"same-origin",
+    "sec-fetch-mode":"cors",
+    "sec-fetch-dest":"empty",
+    "referer":"https://flixtor.se/home",
+    "accept-encoding":"gzip, deflate, br",
+    "accept-language":"en-US,en;q=0.9,sl;q=0.8",
+    "cookie": cookie
+    }
+    xbmc.log("Url: %s" %url,2)
+    xbmc.log("Headers: %s" %headers,2)
+    ajaxCall = s.get(url, headers=headers)
+    xbmc.log("Ajax v4: %s" %ajaxCall.text,2)
+
+    episodeJson = translate(ajaxCall.text)
+    xbmc.log("Movie: %s" %episodeJson,2)
+
+    return episodeJson
 
 def getUserInput():
     keyboard = xbmc.Keyboard()
