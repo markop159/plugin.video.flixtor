@@ -6,6 +6,10 @@
 
 ## What it is ##
 
+Flixtor.se unofficial Python scraper for KODI.
+
+Watch Movies and TV Shows. Currently only free stuff available, I am not a VIP User, if anyone wants to donate for VIP membership Donate via PayPal.
+
 ## Why ##
 
 To learn new things
